@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>BGMI Live Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="styles.css" />
+  <style> body { background: transparent; } </style>
+</head>
+<body>
+  <div class="panel">
+    <h2>Live Standings</h2>
+    <table id="tbl">
+      <thead><tr><th>#</th><th>Team</th><th>K</th><th>Pts</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    async function loadLive(){
+      const url = window.SHEET_API + "?view=live";
+      const res = await fetch(url, { cache: "no-store" });
+      const data = await res.json();
+      const rows = (data.live || []);
+      const tbody = document.querySelector("#tbl tbody");
+      tbody.innerHTML = "";
+      rows.forEach((t, i) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${i+1}</td>
+          <td class="team">
+            ${t.TeamName || t.TeamTag}
+          </td>
+          <td>${t.Kills ?? 0}</td>
+          <td>${t.Points ?? 0}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    loadLive();
+    setInterval(loadLive, 1500);  // poll every 1.5s
+  </script>
+</body>
+</html>
+
